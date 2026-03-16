@@ -1,0 +1,200 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "your-custom-webhook-id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1552, 2064],
+      "id": "webhook-node",
+      "name": "Webhook1",
+      "webhookId": "your-custom-webhook-id"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Webhook1').item.json.body.events[0].message.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+          "mode": "id"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-320, 2192],
+      "id": "upload-node",
+      "name": "Upload file"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={ \n  \"replyToken\": \"{{ $json.body.events[0].replyToken }}\",\n  \"sessionId\":\"REPLACE_WITH_YOUR_SESSION_ID\",\n  \"action\": \"sendMessage\",\n  \"chatInput\": \"{{ $json.body.events[0].message.text }}\" \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-1376, 2064],
+      "id": "set-node",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-1184, 2064],
+      "id": "datetime-node",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [-672, 2192],
+      "id": "wait-node",
+      "name": "Wait1"
+    },
+    {
+      "parameters": {
+        "url": "=https://api-data.line.me/v2/bot/message/{{ $('Webhook1').item.json.body.events[0].message.id }}/content",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-496, 2192],
+      "id": "http-request-node",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.chatInput }}",
+                    "rightValue": "檔案清單",
+                    "operator": "equals"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "檔案清單"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook1').item.json.body.events[0].message.type }}",
+                    "rightValue": "text",
+                    "operator": "equals"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook1').item.json.body.events[0].message.type }}",
+                    "rightValue": "file",
+                    "operator": "equals"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "File"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [-992, 2032],
+      "id": "switch-node",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": "={{ $json.id }}",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-144, 2192],
+      "id": "share-node",
+      "name": "Share file"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $('Webhook1').item.json.body.events[0].message.text }}",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+            "mode": "list"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-672, 2000],
+      "id": "search-node",
+      "name": "Search files and folders"
+    },
+    {
+      "parameters": {
+        "jsCode": "// (程式碼邏輯保留，已移除特定 ID 連結)\nconst files = $input.all();\nif (files.length === 0) return [{ json: { messageText: \"❌ 資料夾內沒有任何檔案。\" } }];\nconst limit = 10;\nconst displayFiles = files.slice(0, limit);\nlet messageText = `📂 檔案清單：\\n`;\nfor (const item of displayFiles) {\n  const file = item.json;\n  messageText += `\n📄 ${file.name}\n🔗 ${file.webViewLink}\n`;\n}\nreturn [{ json: { messageText: messageText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-496, 2000],
+      "id": "code-node",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "Webhook1": { "main": [[{ "node": "Edit Fields", "type": "main", "index": 0 }]] },
+    "Edit Fields": { "main": [[{ "node": "Date & Time", "type": "main", "index": 0 }]] },
+    "Date & Time": { "main": [[{ "node": "Switch", "type": "main", "index": 0 }]] },
+    "Switch": { "main": [[], [{ "node": "Search files and folders", "type": "main", "index": 0 }], [{ "node": "Wait1", "type": "main", "index": 0 }]] },
+    "Wait1": { "main": [[{ "node": "HTTP Request1", "type": "main", "index": 0 }]] },
+    "HTTP Request1": { "main": [[{ "node": "Upload file", "type": "main", "index": 0 }]] },
+    "Upload file": { "main": [[{ "node": "Share file", "type": "main", "index": 0 }]] },
+    "Search files and folders": { "main": [[{ "node": "Code in JavaScript", "type": "main", "index": 0 }]] }
+  }
+}
