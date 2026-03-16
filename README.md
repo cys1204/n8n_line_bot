@@ -39,12 +39,6 @@
 
 ---
 
-## ⚠️ 注意事項
-* **安全性**：上傳至 GitHub 前請務必確認已移除 `webhookId` 與私人的 `folderId`。
-* **隱私建議**：如果你希望保護工作流中的 Webhook URL，建議將 GitHub Repository 設為 **Private**。
-
----
-
 ### 💡 後續優化方向
 * [ ] 整合 Google Sheets 記錄所有上傳日誌。
 * [ ] 加入 AI 影像辨識，自動分類圖片內容。
