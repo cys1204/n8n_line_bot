@@ -3,6 +3,8 @@
 這是一個基於 **n8n** 開發的自動化工作流，旨在解決 LINE 通訊軟體檔案保存期限過短的問題。透過此工具，機器人會自動將 LINE 接收到的檔案、圖片即時轉存至指定的 **Google Drive** 資料夾。
 
 ---
+<img width="1064" height="361" alt="workflow" src="https://github.com/user-attachments/assets/9715b3fd-1279-44f0-8b70-eec0c76608f0" />
+---
 
 ## 🌟 功能特點
 * **自動轉存**：自動識別 LINE 訊息中的文件 (File) 與圖片 (Image) 並下載。
