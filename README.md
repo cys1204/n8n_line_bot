@@ -4,6 +4,9 @@
 
 ---
 <img width="1064" height="361" alt="workflow" src="https://github.com/user-attachments/assets/9715b3fd-1279-44f0-8b70-eec0c76608f0" />
+
+![video_598115428577050761-MicohcYw](https://github.com/user-attachments/assets/df71b1f7-a92b-4a11-b419-aef124b255df)
+
 ---
 
 ## 🌟 功能特點
